@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<title>2026/08/13 每日入庫確認單</title>
+<style>
+:root {
+  --paper: #ffffff; --ground: #eef1f5; --ink: #131a24; --ink-2: #4a5768;
+  --ink-3: #7d8a9c; --line: #d9e0e9; --line-soft: #e8edf3;
+  --accent: #1f497d; --accent-ink: #fff; --accent-wash: #e6edf7;
+  --ok: #16704a; --ok-wash: #dff0e8; --ok-line: #7cc2a3;
+  --warn: #97600b; --warn-wash: #fbeed7; --warn-line: #dfb463;
+  --alert: #a5241c; --alert-wash: #fbe6e4; --alert-line: #e09a94;
+  --shadow: 0 1px 2px rgba(19,26,36,.06), 0 3px 12px rgba(19,26,36,.05);
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC",
+          "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #171e28; --ground: #0e141c; --ink: #e6ecf3; --ink-2: #a4b1c2;
+    --ink-3: #74829a; --line: #2b3644; --line-soft: #222c38;
+    --accent: #82aee2; --accent-ink: #0e141c; --accent-wash: #1c2a3b;
+    --ok: #6bc79b; --ok-wash: #16281f; --ok-line: #2f6b4f;
+    --warn: #e0b166; --warn-wash: #2b2315; --warn-line: #6d5626;
+    --alert: #e59189; --alert-wash: #2e1b19; --alert-line: #7a3d38;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 3px 12px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #171e28; --ground: #0e141c; --ink: #e6ecf3; --ink-2: #a4b1c2;
+  --ink-3: #74829a; --line: #2b3644; --line-soft: #222c38;
+  --accent: #82aee2; --accent-ink: #0e141c; --accent-wash: #1c2a3b;
+  --ok: #6bc79b; --ok-wash: #16281f; --ok-line: #2f6b4f;
+  --warn: #e0b166; --warn-wash: #2b2315; --warn-line: #6d5626;
+  --alert: #e59189; --alert-wash: #2e1b19; --alert-line: #7a3d38;
+}
+:root[data-theme="light"] {
+  --paper: #ffffff; --ground: #eef1f5; --ink: #131a24; --ink-2: #4a5768;
+  --ink-3: #7d8a9c; --line: #d9e0e9; --line-soft: #e8edf3;
+  --accent: #1f497d; --accent-ink: #fff; --accent-wash: #e6edf7;
+  --ok: #16704a; --ok-wash: #dff0e8; --ok-line: #7cc2a3;
+  --warn: #97600b; --warn-wash: #fbeed7; --warn-line: #dfb463;
+  --alert: #a5241c; --alert-wash: #fbe6e4; --alert-line: #e09a94;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font-family: var(--sans); font-size: 16px; line-height: 1.5;
+  -webkit-text-size-adjust: 100%; padding-bottom: 108px;
+}
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 14px; }
+
+header.top {
+  background: var(--accent); color: var(--accent-ink);
+  padding: 20px 0 18px; margin-bottom: 16px;
+}
+header.top .wrap { display: flex; align-items: baseline; gap: 10px;
+  flex-wrap: wrap; }
+header.top h1 { margin: 0; font-size: 20px; font-weight: 620;
+  letter-spacing: -.01em; }
+header.top .d { font-family: var(--mono); font-size: 20px; font-weight: 600;
+  font-variant-numeric: tabular-nums; opacity: .95; }
+header.top .sub { width: 100%; font-size: 13.5px; opacity: .8; margin-top: 3px; }
+
+.howto {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+  padding: 13px 15px; font-size: 13.5px; color: var(--ink-2);
+  box-shadow: var(--shadow); margin-bottom: 14px;
+}
+.howto b { color: var(--ink); font-weight: 620; }
+
+.progress {
+  position: sticky; top: 0; z-index: 10; background: var(--ground);
+  padding: 10px 0 12px;
+}
+.bar { height: 7px; border-radius: 99px; background: var(--line);
+  overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent);
+  transition: width .25s; }
+.ptext { font-size: 13px; color: var(--ink-2); margin-top: 6px;
+  font-variant-numeric: tabular-nums; display: flex; gap: 10px;
+  flex-wrap: wrap; }
+.ptext .flag { color: var(--warn); font-weight: 560; }
+
+.vgroup { margin-bottom: 8px; }
+.vname {
+  font-size: 12px; font-weight: 640; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--ink-3);
+  padding: 14px 2px 7px;
+}
+.item {
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: 12px; padding: 14px; margin-bottom: 10px;
+  box-shadow: var(--shadow);
+}
+.item.done { border-color: var(--ok-line); background: var(--ok-wash); }
+.item.qty  { border-color: var(--warn-line); background: var(--warn-wash); }
+.item.miss { border-color: var(--alert-line); background: var(--alert-wash); }
+
+.iname { font-size: 16.5px; font-weight: 600; line-height: 1.35;
+  text-wrap: balance; }
+.ispec { color: var(--ink-2); font-size: 13.5px; margin-top: 3px; }
+.imeta { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
+  margin-top: 4px; }
+.iqty {
+  display: flex; align-items: baseline; gap: 6px; margin-top: 10px;
+  padding-top: 10px; border-top: 1px dashed var(--line);
+}
+.iqty .n { font-size: 27px; font-weight: 660; letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums; }
+.iqty .u { color: var(--ink-2); font-size: 14px; }
+.iqty .lbl { margin-left: auto; font-size: 12px; color: var(--ink-3); }
+
+.choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px;
+  margin-top: 11px; }
+.choice {
+  appearance: none; border: 1.5px solid var(--line); background: var(--paper);
+  color: var(--ink-2); border-radius: 9px; padding: 12px 4px; font: inherit;
+  font-size: 14px; font-weight: 560; cursor: pointer; text-align: center;
+  line-height: 1.3; min-height: 52px;
+}
+.choice:active { transform: scale(.98); }
+.choice[aria-pressed="true"][data-v="ok"] {
+  background: var(--ok); border-color: var(--ok); color: #fff; }
+.choice[aria-pressed="true"][data-v="qty"] {
+  background: var(--warn); border-color: var(--warn); color: #fff; }
+.choice[aria-pressed="true"][data-v="miss"] {
+  background: var(--alert); border-color: var(--alert); color: #fff; }
+
+.detail { margin-top: 11px; display: none; }
+.detail.show { display: block; }
+.detail label { display: block; font-size: 12.5px; color: var(--ink-2);
+  margin-bottom: 5px; font-weight: 560; }
+.detail input, .detail textarea {
+  width: 100%; border: 1.5px solid var(--line); border-radius: 8px;
+  padding: 11px 12px; font: inherit; font-size: 16px; background: var(--paper);
+  color: var(--ink);
+}
+.detail textarea { min-height: 62px; resize: vertical; }
+.detail .qrow { display: flex; align-items: center; gap: 10px; }
+.detail .qrow input { max-width: 130px; font-family: var(--mono);
+  font-weight: 600; }
+.detail .qrow .was { font-size: 13px; color: var(--ink-3); }
+
+footer.bottom {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  background: var(--paper); border-top: 1px solid var(--line);
+  padding: 11px 0 calc(11px + env(safe-area-inset-bottom));
+  box-shadow: 0 -3px 14px rgba(0,0,0,.07);
+}
+footer .wrap { display: flex; gap: 9px; align-items: center; }
+#who {
+  flex: 1; border: 1.5px solid var(--line); border-radius: 9px;
+  padding: 12px; font: inherit; font-size: 16px; min-width: 0;
+  background: var(--paper); color: var(--ink);
+}
+#send {
+  border: 0; border-radius: 9px; padding: 13px 22px; font: inherit;
+  font-size: 16px; font-weight: 620; background: var(--accent);
+  color: var(--accent-ink); cursor: pointer; white-space: nowrap;
+}
+#send[disabled] { opacity: .45; cursor: not-allowed; }
+
+:is(button, input, textarea, a):focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+.banner {
+  border-radius: 10px; padding: 13px 15px; font-size: 14px;
+  margin-bottom: 14px; display: none;
+}
+.banner.show { display: block; }
+.banner.good { background: var(--ok-wash); color: var(--ok);
+  border: 1px solid var(--ok-line); }
+.banner.bad { background: var(--alert-wash); color: var(--alert);
+  border: 1px solid var(--alert-line); }
+.banner b { font-weight: 640; }
+.banner pre {
+  white-space: pre-wrap; word-break: break-all; font-family: var(--mono);
+  font-size: 11.5px; background: var(--paper); color: var(--ink);
+  padding: 10px; border-radius: 7px; margin: 9px 0 0; max-height: 190px;
+  overflow: auto;
+}
+.empty { text-align: center; padding: 60px 20px; color: var(--ink-3); }
+.empty strong { display: block; font-size: 18px; color: var(--ink);
+  margin-bottom: 6px; }
+
+/* ── 鎖定畫面 ───────────────────────────── */
+.lock { min-height: 100vh; display: flex; align-items: center;
+  justify-content: center; padding: 22px; }
+.lockbox {
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: 14px; box-shadow: var(--shadow);
+  padding: 28px 24px; width: 100%; max-width: 380px;
+}
+.lockbox h1 { margin: 0 0 6px; font-size: 19px; font-weight: 640; }
+.lockbox .why { margin: 0 0 18px; font-size: 13.5px; color: var(--ink-2); }
+.lockbox label { display: block; font-size: 12px; font-weight: 600;
+  color: var(--ink-2); margin-bottom: 6px; }
+.lockbox input[type="password"] {
+  width: 100%; border: 1.5px solid var(--line); border-radius: 9px;
+  padding: 13px; font: inherit; font-size: 16px;
+  background: var(--paper); color: var(--ink);
+}
+.lockbox button {
+  width: 100%; margin-top: 12px; border: 0; border-radius: 9px;
+  padding: 14px; font: inherit; font-size: 16px; font-weight: 620;
+  background: var(--accent); color: var(--accent-ink); cursor: pointer;
+}
+.lockbox button[disabled] { opacity: .5; cursor: progress; }
+.remember { display: flex; align-items: center; gap: 8px; margin-top: 14px;
+  font-size: 13px; color: var(--ink-2); }
+.remember input { width: 18px; height: 18px; accent-color: var(--accent); }
+.lockerr { margin-top: 12px; font-size: 13.5px; color: var(--alert);
+  background: var(--alert-wash); border: 1px solid var(--alert-line);
+  border-radius: 8px; padding: 10px 12px; display: none; }
+.lockerr.show { display: block; }
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="lock" id="lock" hidden>
+  <form class="lockbox" id="lockform">
+    <h1>每日入庫確認單</h1>
+    <p class="why">請輸入門市共用密碼。不知道密碼的話問一下主管。</p>
+    <label for="pw">密碼</label>
+    <input id="pw" type="password" autocomplete="current-password" />
+    <label class="remember">
+      <input id="remember" type="checkbox" checked />
+      在這支手機記住密碼
+    </label>
+    <button id="unlock" type="submit">開始確認</button>
+    <div class="lockerr" id="lockerr"></div>
+  </form>
+</div>
+
+<div id="app" hidden>
+<header class="top">
+  <div class="wrap">
+    <h1>每日入庫確認單</h1>
+    <span class="d">2026/08/13</span>
+    <div class="sub">週四　·　這天沒有入庫</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="banner" id="banner"></div>
+
+  <div class="howto">
+    <b>請對照實際入庫的貨品逐項確認。</b>
+    數量正確按「正確」；數量不符按「數量不同」並填實際數字；
+    整項沒收到按「沒收到」。全部確認完，填上你的名字再送出。
+  </div>
+
+  <div class="progress">
+    <div class="bar"><i id="barfill"></i></div>
+    <div class="ptext">
+      <span id="ptext">尚未開始</span>
+      <span class="flag" id="pflag"></span>
+    </div>
+  </div>
+
+  <div id="list"></div>
+</div>
+
+<footer class="bottom">
+  <div class="wrap">
+    <input id="who" type="text" autocomplete="name"
+           placeholder="你的名字" aria-label="確認人姓名" />
+    <button id="send" type="button">送出確認</button>
+  </div>
+</footer>
+</div>
+
+<script id="payload" type="application/json">{"encrypted":true,"iter":600000,"b64":"Qi1OgGbvfm9ECKa8XdKRNUHT5dUD2qNRKAJpzT6OgxR33stf1U4XsCb6tshdOHEda3J84+hg60SLwlODtughde+Hqb5hnPo+SmKIDeQP2fBH/nLBUQqoaw=="}</script>
+<script>
+(function () {
+  "use strict";
+  const PAYLOAD = JSON.parse(document.getElementById("payload").textContent);
+  const PWKEY = "inbound-confirm-pw";
+
+  // ── 解密 ────────────────────────────────
+  // 這頁掛在公開網址，所以內容是加密的，頁面裡沒有密碼。
+
+  function b64bytes(s) {
+    const bin = atob(s), out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+  async function decryptPayload(pw, payload) {
+    const raw = b64bytes(payload.b64);
+    const salt = raw.slice(0, 16), iv = raw.slice(16, 28), body = raw.slice(28);
+    const km = await crypto.subtle.importKey(
+      "raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
+    const key = await crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt: salt, iterations: payload.iter, hash: "SHA-256" },
+      km, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+    const plain = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: iv }, key, body);
+    return JSON.parse(new TextDecoder().decode(plain));
+  }
+
+
+  const lockEl = document.getElementById("lock");
+  const appEl = document.getElementById("app");
+
+  if (!PAYLOAD.encrypted) {
+    startApp(PAYLOAD.data);
+  } else if (!window.crypto || !crypto.subtle) {
+    lockEl.hidden = false;
+    document.getElementById("lockform").style.display = "none";
+    lockError("這個連結沒有加密保護（需要 https）。請跟主管確認正確網址。");
+  } else {
+    lockEl.hidden = false;
+    const saved = (() => {
+      try { return localStorage.getItem(PWKEY); } catch (e) { return null; }
+    })();
+    if (saved) tryUnlock(saved, true);
+    document.getElementById("lockform").addEventListener("submit", ev => {
+      ev.preventDefault();
+      tryUnlock(document.getElementById("pw").value,
+                document.getElementById("remember").checked);
+    });
+  }
+
+  function lockError(msg) {
+    const e = document.getElementById("lockerr");
+    e.textContent = msg;
+    e.classList.add("show");
+  }
+
+  async function tryUnlock(pw, remember) {
+    const btn = document.getElementById("unlock");
+    document.getElementById("lockerr").classList.remove("show");
+    btn.disabled = true;
+    btn.textContent = "開啟中…";
+    try {
+      const data = await decryptPayload(pw, PAYLOAD);
+      if (remember) {
+        try { localStorage.setItem(PWKEY, pw); } catch (e) {}
+      }
+      lockEl.hidden = true;
+      startApp(data);
+    } catch (err) {
+      try { localStorage.removeItem(PWKEY); } catch (e) {}
+      btn.disabled = false;
+      btn.textContent = "開始確認";
+      lockError("密碼不對，再試一次。");
+      document.getElementById("pw").select();
+    }
+  }
+
+  function startApp(D) {
+    appEl.hidden = false;
+    boot(D);
+  }
+
+  // ── 主程式 ──────────────────────────────
+  function boot(D) {
+  const ITEMS = D.items, DATE = D.date, ENDPOINT = D.endpoint;
+  const LSKEY = "inbound-confirm-" + DATE;
+
+  const el = id => document.getElementById(id);
+  const list = el("list"), banner = el("banner"), who = el("who"),
+        send = el("send");
+
+  if (!ITEMS.length) {
+    list.innerHTML = '<div class="empty"><strong>這天沒有入庫紀錄</strong>' +
+      "不用確認，收工。</div>";
+    document.querySelector("footer.bottom").style.display = "none";
+    document.querySelector(".progress").style.display = "none";
+    document.querySelector(".howto").style.display = "none";
+    return;
+  }
+
+  // 先前填過的答案（同一台手機重開不會消失）
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(LSKEY) || "{}"); }
+  catch (e) { saved = {}; }
+  const answers = {};
+  ITEMS.forEach(it => {
+    const s = saved[it.id];
+    answers[it.id] = s ? { v: s.v, aq: s.aq, note: s.note }
+                       : { v: "", aq: "", note: "" };
+  });
+  if (saved.__who) who.value = saved.__who;
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g,
+      c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;",
+              '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  // 依廠商分組，倉庫人員通常是一箱一箱點
+  const groups = [];
+  let cur = null;
+  ITEMS.forEach(it => {
+    if (!cur || cur.v !== it.v) { cur = { v: it.v, items: [] }; groups.push(cur); }
+    cur.items.push(it);
+  });
+
+  list.innerHTML = groups.map(g =>
+    '<section class="vgroup"><div class="vname">' + esc(g.v) + "　（" +
+    g.items.length + " 項）</div>" +
+    g.items.map(itemHTML).join("") + "</section>").join("");
+
+  function itemHTML(it) {
+    return '<article class="item" id="it-' + it.id + '" data-id="' + it.id + '">' +
+      '<div class="iname">' + esc(it.n) + "</div>" +
+      (it.sp ? '<div class="ispec">' + esc(it.sp) + "</div>" : "") +
+      '<div class="imeta">' + esc(it.k || "無貨號") +
+        (it.doc ? "　·　" + esc(it.doc) : "") + "</div>" +
+      '<div class="iqty"><span class="n">' + it.q + "</span>" +
+        '<span class="u">' + esc(it.u || "") + "</span>" +
+        '<span class="lbl">系統記錄的入庫數量</span></div>' +
+      '<div class="choices">' +
+        btn(it.id, "ok", "正確") +
+        btn(it.id, "qty", "數量不同") +
+        btn(it.id, "miss", "沒收到") +
+      "</div>" +
+      '<div class="detail" id="dt-' + it.id + '">' +
+        '<div class="qrow" id="qr-' + it.id + '" style="display:none">' +
+          '<div style="flex:1"><label for="aq-' + it.id + '">' +
+            "實際收到數量</label>" +
+          '<input id="aq-' + it.id + '" type="number" inputmode="numeric" ' +
+            'min="0" step="1" placeholder="0" /></div>' +
+          '<span class="was">系統寫 ' + it.q + " " + esc(it.u || "") + "</span>" +
+        "</div>" +
+        '<div style="margin-top:9px"><label for="nt-' + it.id + '">' +
+          "補充說明（可不填）</label>" +
+        '<textarea id="nt-' + it.id + '" placeholder="例如：外箱破損、效期不對、' +
+          '品項拿錯"></textarea></div>' +
+      "</div></article>";
+  }
+  function btn(id, v, label) {
+    return '<button class="choice" type="button" data-id="' + id +
+      '" data-v="' + v + '" aria-pressed="false">' + label + "</button>";
+  }
+
+  function paint(id) {
+    const a = answers[id];
+    const item = el("it-" + id);
+    item.classList.remove("done", "qty", "miss");
+    if (a.v === "ok") item.classList.add("done");
+    if (a.v === "qty") item.classList.add("qty");
+    if (a.v === "miss") item.classList.add("miss");
+    item.querySelectorAll(".choice").forEach(b =>
+      b.setAttribute("aria-pressed", String(b.dataset.v === a.v)));
+    el("dt-" + id).classList.toggle("show", a.v === "qty" || a.v === "miss");
+    el("qr-" + id).style.display = a.v === "qty" ? "flex" : "none";
+    el("aq-" + id).value = a.aq;
+    el("nt-" + id).value = a.note;
+  }
+
+  function persist() {
+    const out = { __who: who.value };
+    Object.keys(answers).forEach(k => { out[k] = answers[k]; });
+    try { localStorage.setItem(LSKEY, JSON.stringify(out)); } catch (e) {}
+  }
+
+  function progress() {
+    const total = ITEMS.length;
+    const done = ITEMS.filter(it => answers[it.id].v).length;
+    const issues = ITEMS.filter(it => answers[it.id].v === "qty" ||
+      answers[it.id].v === "miss").length;
+    el("barfill").style.width = (done / total * 100) + "%";
+    el("ptext").textContent = "已確認 " + done + " / " + total + " 項";
+    el("pflag").textContent = issues ? "有 " + issues + " 項要處理" : "";
+    send.disabled = done < total;
+    send.textContent = done < total
+      ? "還有 " + (total - done) + " 項未確認"
+      : "送出確認";
+  }
+
+  list.addEventListener("click", ev => {
+    const b = ev.target.closest(".choice");
+    if (!b) return;
+    const id = b.dataset.id;
+    answers[id].v = answers[id].v === b.dataset.v ? "" : b.dataset.v;
+    paint(id); persist(); progress();
+  });
+  list.addEventListener("input", ev => {
+    const t = ev.target;
+    if (t.id.indexOf("aq-") === 0) answers[t.id.slice(3)].aq = t.value;
+    else if (t.id.indexOf("nt-") === 0) answers[t.id.slice(3)].note = t.value;
+    else return;
+    persist();
+  });
+  who.addEventListener("input", persist);
+
+  ITEMS.forEach(it => paint(it.id));
+  progress();
+
+  function payload() {
+    return {
+      date: DATE,
+      who: who.value.trim(),
+      submitted_at: new Date().toISOString(),
+      items: ITEMS.map(it => ({
+        id: it.id, sku: it.k, name: it.n, spec: it.sp, vendor: it.v,
+        doc: it.doc, system_qty: it.q, unit: it.u,
+        verdict: answers[it.id].v,
+        actual_qty: answers[it.id].v === "qty" ? answers[it.id].aq : "",
+        note: answers[it.id].note
+      }))
+    };
+  }
+
+  function show(kind, html) {
+    banner.className = "banner show " + kind;
+    banner.innerHTML = html;
+    banner.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  send.addEventListener("click", () => {
+    if (!who.value.trim()) {
+      show("bad", "<b>請先在下方填上你的名字</b>，才知道這份是誰確認的。");
+      who.focus();
+      return;
+    }
+    const bad = ITEMS.filter(it => answers[it.id].v === "qty" &&
+      answers[it.id].aq === "");
+    if (bad.length) {
+      show("bad", "<b>有 " + bad.length +
+        " 項選了「數量不同」但沒填實際數量。</b>請補上再送出。");
+      el("it-" + bad[0].id).scrollIntoView({ behavior: "smooth",
+        block: "center" });
+      return;
+    }
+
+    const body = payload();
+    send.disabled = true;
+    send.textContent = "送出中…";
+
+    if (!ENDPOINT) { fallback(body, "尚未設定回報網址"); return; }
+
+    // text/plain 屬於簡單請求，不會觸發 CORS 預檢，Apps Script 才收得到
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(body)
+    })
+      .then(r => r.ok ? r.text() : Promise.reject(new Error("HTTP " + r.status)))
+      .then(() => {
+        const issues = body.items.filter(i => i.verdict !== "ok").length;
+        show("good", "<b>已送出，謝謝 " + esc(body.who) + "。</b>" +
+          (issues ? "其中 " + issues + " 項回報異常，會有人跟進處理。"
+                  : "全部品項都正確。"));
+        send.textContent = "已送出";
+        try { localStorage.removeItem(LSKEY); } catch (e) {}
+      })
+      .catch(err => fallback(body, err.message));
+  });
+
+  function fallback(body, reason) {
+    send.disabled = false;
+    send.textContent = "重新送出";
+    const txt = JSON.stringify(body, null, 1);
+    show("bad", "<b>送不出去（" + esc(reason) + "）。</b>" +
+      "網路可能不通。請按「重新送出」再試一次；" +
+      "如果一直失敗，把下面這段整個複製傳給負責人。" +
+      "<pre>" + esc(txt) + "</pre>");
+  }
+  }
+})();
+</script>
+</body>
+</html>
