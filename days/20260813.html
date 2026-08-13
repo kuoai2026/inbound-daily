@@ -190,6 +190,9 @@ footer .wrap { display: flex; gap: 9px; align-items: center; }
 /* ── 鎖定畫面 ───────────────────────────── */
 .lock { min-height: 100vh; display: flex; align-items: center;
   justify-content: center; padding: 22px; }
+/* display:flex 是作者樣式，會蓋掉 hidden 屬性的 display:none，
+   少了這行解鎖後鎖定畫面不會消失 */
+.lock[hidden], #app[hidden] { display: none; }
 .lockbox {
   background: var(--paper); border: 1px solid var(--line);
   border-radius: 14px; box-shadow: var(--shadow);
@@ -277,7 +280,7 @@ footer .wrap { display: flex; gap: 9px; align-items: center; }
 </footer>
 </div>
 
-<script id="payload" type="application/json">{"encrypted":true,"iter":600000,"b64":"8a8isWu2dQEfgiInf7Pe25+v4T4SEUWls0ctlO1BZsKI/DAQWUjXmtzd0CimpEwhdabX+tac4DndVt578AQ1oJC8idIkZ1Gch4NwTNdnVlMHtW27T7F4GMhsCEJ1GwQ30rMkKywFN9KTPS09cHargNohYBiqshxEaptr/q+U2GrENyM1NxzLl11IR4BXrF/iImoMokXezBBaNM19Zd8DjOXpHLSqxFNsoTYxKyTDOqH7eIJM9vDkt0f//m1J5XAnIOUss4CoFdcyRw=="}</script>
+<script id="payload" type="application/json">{"encrypted":true,"iter":600000,"b64":"Ybt3bwMAnjI05OY0rbMF0goyRf4aejT4t1aJQ+iHwoGPUogHli9OBxgfMInIzQj/pLjiUSA9vaJCua4XnoQanUH8fZbZ2Aj3Fbpw4HMmpvkiVrG+Q3T2fAizK73WMK8D4Q5hKG2AFMPC9vaTkRMqdcXk4U88CY2jvnPriRXQ6Oh2U0n9V19BmYQz5fLOufYnO7frlP9N1jNX2HlfASE6z3OHFqBB5A7PDJi1jjGWtzdaP5lk+Xxdqf+jRHN9TdmltFF1mCX/DJG8ZA=="}</script>
 <script>
 (function () {
   "use strict";
